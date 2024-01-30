@@ -1,0 +1,33 @@
+name: PublishNuget
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '8.0.100' # The .NET SDK version to use
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Pull submodules
+      run: git submodule update --init --recursive --depth 1
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Publish
+      run: dotnet publish .\AuthZedClient\AuthZedClient.csproj --configuration Release
+
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with:
+       PROJECT_FILE_PATH: SpiceDb/SpiceDb.csproj
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}
